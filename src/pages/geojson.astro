@@ -1,0 +1,132 @@
+---
+import Layout from "../layouts/Layout.astro";
+import populationMain from "../assets/populationMain.json";
+
+// Sécurisation de l'import : on s'assure de bien pointer sur le tableau de données
+const data = populationMain.default || populationMain;
+
+// Extraction dynamique stricte basée sur vos consignes
+const listePeriode = [...new Set(data?.map((d: any) => d.Période))].reverse();
+const listeSexe = [...new Set(data?.map((d: any) => d.Sex))];
+const listeAge = [...new Set(data?.map((d: any) => d.Age))];
+---
+
+<Layout title="Filtres GeoJSON">
+  <main class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <a href="/" class="inline-flex items-center text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors mb-8 bg-purple-50 px-4 py-2 rounded-full">
+        <span class="mr-2">←</span> Retour au Hub
+      </a>
+
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">Astro GeoJSON & Filtres</h1>
+        
+        <div class="flex flex-wrap gap-6 mb-8 bg-gray-50 p-6 rounded-2xl border border-gray-100 items-end shadow-inner">
+          <div class="flex-1 min-w-[200px]">
+            <label for="periode" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Période</label>
+            <select id="periode" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm py-3 px-4 bg-white border outline-none transition-all">
+              {listePeriode.map((p, i) => <option selected={i === 0} value={p}>{p}</option>)}
+            </select>
+          </div>
+          
+          <div class="flex-1 min-w-[200px]">
+            <label for="sexe" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Sexe</label>
+            <select id="sexe" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm py-3 px-4 bg-white border outline-none transition-all">
+              {listeSexe.map((s, i) => <option selected={i === 0} value={s}>{s}</option>)}
+            </select>
+          </div>
+
+          <div class="flex-1 min-w-[200px]">
+            <label for="age" class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Âge</label>
+            <select id="age" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm py-3 px-4 bg-white border outline-none transition-all">
+              {listeAge.map((a, i) => <option selected={i === 0} value={a}>{a}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div id="plot-geojson" class="min-h-[600px] border border-gray-100 rounded-2xl p-6 flex flex-col items-center justify-center bg-gray-50 shadow-inner">
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  import populationMain from "../assets/populationMain.json";
+  import departementsGeoData from "../assets/departements.geojson.json";
+
+  // Récupération sécurisée des données côté client
+  const dataArray = populationMain.default || populationMain;
+  const geoData = departementsGeoData.default || departementsGeoData;
+
+  const elmYear = document.getElementById("periode") as HTMLSelectElement;
+  const elmSexe = document.getElementById("sexe") as HTMLSelectElement;
+  const elmAge = document.getElementById("age") as HTMLSelectElement;
+  const plotContainer = document.getElementById("plot-geojson");
+
+  function drawPlot() {
+    if (!plotContainer) return;
+
+    let selectedYear = Number(elmYear.value);
+    let selectedSexe = elmSexe.value;
+    let selectedAge = elmAge.value;
+
+    // Filtrage strict basé sur les variables de l'énoncé (Période, Sex, Age)
+    const filteredData = dataArray.filter((d: any) => {
+      const matchYear = d.Période === selectedYear;
+      // Comparaison en String au cas où Sex et Age seraient des nombres dans le JSON
+      const matchSexe = String(d.Sex) === String(selectedSexe);
+      const matchAge = String(d.Age) === String(selectedAge);
+      return matchYear && matchSexe && matchAge;
+    });
+
+    const dataMap = new Map();
+    filteredData.forEach((d: any) => {
+      // Force le code département à être une string (ex: "01" au lieu de 1) pour correspondre au GeoJSON
+      let code = String(d.Code);
+      if (code.length === 1) code = "0" + code;
+      
+      const pop = Number(d.Population) || 0;
+      dataMap.set(code, pop);
+    });
+
+    plotContainer.innerHTML = "";
+
+    const mapPlot = Plot.plot({
+      projection: {
+        type: "mercator",
+        domain: geoData 
+      },
+      color: {
+        type: "linear",
+        scheme: "Blues",
+        unknown: "#f8fafc",
+        legend: true
+      },
+      width: 900,
+      height: 700,
+      marks: [
+        Plot.geo(geoData, {
+          stroke: "#cbd5e1",
+          fill: (d: any) => dataMap.get(String(d.properties.code)),
+          title: (d: any) => {
+            const val = dataMap.get(String(d.properties.code));
+            return `${d.properties.nom}\nPopulation : ${val !== undefined ? val.toLocaleString('fr-FR') : "Non disponible"}`;
+          }
+        })
+      ]
+    });
+
+    plotContainer.appendChild(mapPlot);
+  }
+
+  if (elmYear && elmSexe && elmAge) {
+    elmYear.addEventListener("change", drawPlot);
+    elmSexe.addEventListener("change", drawPlot);
+    elmAge.addEventListener("change", drawPlot);
+    
+    // Déclenchement initial
+    setTimeout(drawPlot, 50);
+  }
+</script>

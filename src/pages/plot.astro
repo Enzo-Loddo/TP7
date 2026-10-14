@@ -1,0 +1,33 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PlotFigure from "../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+import penguins from "../assets/penguins.json";
+---
+
+<Layout title="Test Astro et Plot">
+  <main class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+      <a href="/" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors mb-8 bg-blue-50 px-4 py-2 rounded-full">
+        <span class="mr-2">←</span> Retour au Hub
+      </a>
+
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">Test Astro et Plot (Observablehq)</h1>
+        <div class="flex justify-center bg-gray-50 p-6 rounded-2xl border border-gray-100">
+          <PlotFigure
+            options={{
+              marks: [
+                Plot.dot(penguins, {
+                  x: "culmen_length_mm",
+                  y: "culmen_depth_mm",
+                  stroke: "species",
+                }),
+              ],
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>

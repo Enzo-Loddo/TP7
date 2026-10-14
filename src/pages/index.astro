@@ -1,21 +1,50 @@
 ---
-import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
-import * as Plot from "@observablehq/plot";
-import penguins from "../assets/penguins.json";
 ---
 
-<Layout>
-  <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <PlotFigure
-    options={{
-      marks: [
-        Plot.dot(penguins, {
-          x: "culmen_length_mm",
-          y: "culmen_depth_mm",
-          stroke: "species",
-        }),
-      ],
-    }}
-  />
+<Layout title="Accueil - TP Visualisation">
+  <main class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-16">
+        <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+          Hub des Travaux Pratiques
+        </h1>
+        <p class="mt-4 text-xl text-gray-500">
+          Visualisation de données avec Astro, Observable Plot et Leaflet
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <a href="/plot" class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden transform hover:-translate-y-1">
+          <div class="p-8">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <span class="text-2xl">📊</span>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">0) Accessibilité</h2>
+            <p class="text-gray-500">Graphiques avec Observable Plot et normes d'accessibilité (a11y).</p>
+          </div>
+        </a>
+
+        <a href="/leaflet" class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden transform hover:-translate-y-1">
+          <div class="p-8">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <span class="text-2xl">🗺️</span>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">1) Leaflet</h2>
+            <p class="text-gray-500">Carte interactive affichant la liste des établissements universitaires.</p>
+          </div>
+        </a>
+
+        <a href="/geojson" class="group block bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden transform hover:-translate-y-1">
+          <div class="p-8">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <span class="text-2xl">🌍</span>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">2) Astro GeoJSON</h2>
+            <p class="text-gray-500">Filtres dynamiques et rendu cartographique complexe avec données.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
 </Layout>

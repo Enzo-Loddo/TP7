@@ -1,0 +1,40 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "leaflet/dist/leaflet.css";
+---
+
+<Layout title="Carte Leaflet">
+  <main class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <a href="/" class="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-800 transition-colors mb-8 bg-green-50 px-4 py-2 rounded-full">
+        <span class="mr-2">←</span> Retour au Hub
+      </a>
+
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">Carte des établissements</h1>
+        
+        <div class="rounded-2xl overflow-hidden shadow-inner border border-gray-200 bg-gray-100 p-2">
+          <div id="map" class="rounded-xl w-full h-[600px] z-0"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import listeEtablissements from "../assets/listeEtablissements.json";
+  import L from "leaflet";
+
+  const map = L.map("map").setView([46.6033, 1.883], 6);
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  listeEtablissements.forEach((etab: any) => {
+      if (etab.lat && etab.lon) {
+          L.marker([etab.lat, etab.lon]).addTo(map).bindPopup(etab.name);
+      }
+  });
+</script>
